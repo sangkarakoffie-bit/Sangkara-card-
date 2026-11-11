@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Kartu Loyalti Sangkara.shoot</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@400;600;700&family=Abril+Fatface&display=swap">
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<style>
+:root{--khaki:#C8B68C;--khaki-d:#A8946A;--navy:#1E2F4D;--sky:#A9CCE3;--cream:#F2ECDA;--bg:#EDE6D0;--ink:#1E2F4D;--panel:#F8F4E6;--muted:#5B6B86;
+--display:'Abril Fatface','Didot',Georgia,serif;--body:'Josefin Sans','Avenir Next','Trebuchet MS',sans-serif;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#121C2F;--ink:#EFE8D3;--panel:#1A2740;--muted:#9FB3CF}}
+:root[data-theme="dark"]{--bg:#121C2F;--ink:#EFE8D3;--panel:#1A2740;--muted:#9FB3CF}
+*{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);min-height:100vh}
+main{max-width:460px;margin:0 auto;padding:20px 16px 40px}
+h1{font-family:var(--display);font-weight:400;font-size:26px;margin:4px 0 2px}
+.sub{margin:0 0 16px;color:var(--muted);font-size:14px}
+.chips{display:flex;gap:8px;overflow-x:auto;padding-bottom:8px;margin-bottom:12px}
+.chips[hidden],.addbox[hidden]{display:none}
+.chip{flex:none;border:2px solid var(--navy);background:transparent;color:var(--ink);font:600 14px var(--body);padding:7px 14px;border-radius:999px;cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--navy);color:var(--cream)}
+.chip.add{border-style:dashed}
+.addbox{display:flex;gap:8px;margin-bottom:14px}
+input{border:2px solid var(--navy);background:var(--panel);color:var(--ink);font:600 16px var(--body);padding:10px 14px;border-radius:14px;width:100%;min-width:0}
+.addbox button.main{padding:12px 16px;font-size:15px;white-space:nowrap}
+.card{position:relative;background:var(--khaki);border-radius:28px 28px 28px 70px;padding:20px 18px 22px;color:var(--navy);box-shadow:6px 6px 0 var(--navy);overflow:hidden}
+.card::before{content:"";position:absolute;right:-50px;top:-50px;width:150px;height:150px;border-radius:50%;background:var(--sky);opacity:.9}
+.card::after{content:"";position:absolute;left:-30px;bottom:-30px;width:90px;height:90px;background:var(--navy);transform:rotate(45deg);opacity:.12}
+.card>*{position:relative;z-index:1}
+.brand{display:flex;align-items:center;gap:10px;margin-bottom:4px}
+.brand svg{width:34px;height:34px;flex:none}
+.brand b{font-family:var(--display);font-weight:400;font-size:24px;letter-spacing:.3px}
+.who{font-size:14px;font-weight:600;margin:0 0 14px}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;background:var(--cream);padding:14px;border-radius:20px;border:3px solid var(--navy)}
+.slot{aspect-ratio:1;border-radius:50%;display:grid;place-items:center;border:2.5px dashed var(--khaki-d);color:var(--khaki-d);font:700 20px var(--body)}
+.slot.on{border:3px solid var(--navy);background:var(--sky);color:var(--navy)}
+.slot.on svg{width:68%;height:68%}
+.slot.pop{animation:pop .45s cubic-bezier(.3,1.6,.5,1)}
+@keyframes pop{0%{transform:scale(1.9) rotate(-25deg);opacity:0}100%{transform:none;opacity:1}}
+.slot.free{border:3px solid var(--navy);background:var(--navy);color:var(--cream);font-family:var(--display);font-weight:400;font-size:22px;line-height:1;text-align:center}
+.slot.free small{display:block;font:600 9px var(--body);letter-spacing:.5px;margin-top:2px}
+.slot.free.on{background:var(--sky);color:var(--navy)}
+.foot{display:flex;justify-content:space-between;align-items:center;margin-top:12px;font-size:13px;font-weight:600}
+.foot span:last-child{font-family:var(--display);font-weight:400;font-size:15px}
+.status{margin:14px 0 10px;text-align:center;font-weight:600;min-height:22px}
+.btns{display:grid;gap:10px}
+button.main{border:0;background:var(--navy);color:var(--cream);font:700 18px var(--body);padding:16px;border-radius:18px;cursor:pointer;box-shadow:0 5px 0 #0c1626}
+button.main:active{transform:translateY(3px);box-shadow:0 2px 0 #0c1626}
+button.main.reward{background:var(--sky);color:var(--navy);box-shadow:0 5px 0 #6E9AB8}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+button.ghost{border:2px solid var(--navy);background:transparent;color:var(--ink);font:600 14px var(--body);padding:11px;border-radius:14px;cursor:pointer}
+button:focus-visible,.chip:focus-visible,input:focus-visible{outline:3px solid var(--sky);outline-offset:2px}
+button:disabled{opacity:.4;cursor:not-allowed}
+.empty{text-align:center;padding:36px 12px;border:2px dashed var(--khaki-d);border-radius:24px;color:var(--muted)}
+.link{margin-top:16px}.link label{display:block;font-size:13px;font-weight:600;color:var(--muted);margin-bottom:6px}
+.err{color:#B3402A;font-weight:600;text-align:center;min-height:0;margin:8px 0 0}
+.login{display:grid;gap:10px}
+@media (prefers-reduced-motion:reduce){.slot.pop{animation:none}}
+
+</style>
+</head>
+<body>
+<!--
+SETUP (sekali saja) - Sangkara.shoot Loyalty, versi hosting sendiri
+1. console.firebase.google.com > Add project (gratis, paket Spark).
+2. Build > Authentication > Get started > aktifkan Email/Password > tab Users > Add user (email + password kamu sebagai owner). Salin User UID-nya.
+3. Build > Firestore Database > Create database > pilih lokasi asia-southeast2 (Jakarta) > mulai dengan production mode.
+4. Tab Rules, ganti dengan aturan di bawah (ganti UID_OWNER dengan UID langkah 2), lalu Publish:
+   rules_version = '2';
+   service cloud.firestore { match /databases/{db}/documents {
+     match /cards/{id} {
+       allow get: if true;
+       allow list, create, update, delete: if request.auth != null && request.auth.uid == "UID_OWNER";
+     }
+   } }
+5. Project settings > Your apps > tambah Web app (</>) > salin firebaseConfig ke FIREBASE_CONFIG di bawah.
+6. Upload file ini ke hosting statis (Firebase Hosting: npm i -g firebase-tools; firebase init hosting; firebase deploy). Di Authentication > Settings > Authorized domains pastikan domain hosting-mu ada.
+Pemakaian: owner buka halaman utama dan login. Pelanggan membuka link ...?c=KODE dari panel owner (hanya bisa lihat, tidak bisa stamp).
+-->
+<main>
+  <h1>Kartu Loyalti</h1>
+  <p class="sub" id="sub">Memuat…</p>
+  <div class="chips" id="chips" hidden></div>
+  <div class="addbox" id="addbox" hidden><input id="nm" maxlength="30" placeholder="Nama pelanggan" autocomplete="off"><button class="main" id="addok">Buat kartu</button></div>
+  <div id="view"></div>
+  <p class="err" id="err" role="alert"></p>
+</main>
+<script>
+var $=function(i){return document.getElementById(i)};
+var BURST='<svg viewBox="0 0 40 40" aria-hidden="true"><g fill="currentColor"><path d="M20 2l3 11 11-3-8 8 10 4-10 4 8 8-11-3-3 11-3-11-11 3 8-8-10-4 10-4-8-8 11 3z"/></g><circle cx="20" cy="20" r="5" fill="var(--sky)"/></svg>';
+var LOGO='<svg viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="18" fill="#1E2F4D"/><path d="M20 6l2.6 9.4L32 12l-6.6 7.4L34 24l-9.2 1.6L28 34l-8-5-8 5 3.2-8.4L6 24l8.6-4.6L8 12l9.4 3.4z" fill="#A9CCE3"/></svg>';
+var prev={};
+function fail(e){$('err').textContent='Gagal menyimpan: '+((e&&e.message)||e)}
+function statusText(c){return c.stamps>=9?'Kartu penuh! Reward FREE siap diklaim.':c.stamps+' dari 9 stamp · '+(9-c.stamps)+' lagi untuk FREE'}
+function mountCard(el,c){
+  var st=Math.max(0,Math.min(9,c.stamps||0)),p=prev[c.code],pop=(p!==undefined&&st>p)?st-1:-1;prev[c.code]=st;
+  var s='';
+  for(var i=0;i<9;i++){
+    var on=i<st,pc=(i===pop)?' pop':'';
+    if(i===8)s+='<div class="slot free'+(on?' on'+pc:'')+'">'+(on?BURST:'FREE<small>GRATIS</small>')+'</div>';
+    else s+='<div class="slot'+(on?' on'+pc:'')+'">'+(on?BURST:(i+1))+'</div>';
+  }
+  el.innerHTML='<div class="card"><div class="brand">'+LOGO+'<b>sangkara.shoot</b></div><p class="who"></p><div class="grid">'+s+'</div><div class="foot"><span>Stamp ke-9 gratis</span><span>sangkara.shoot</span></div></div>';
+  el.querySelector('.who').textContent=c.name+(c.claimed?'  ·  '+c.claimed+'x klaim FREE':'');
+}
+function showMsg(t){$('chips').hidden=true;$('addbox').hidden=true;$('view').innerHTML='<div class="empty"></div>';$('view').firstChild.textContent=t}
+function showCustomer(c){
+  $('sub').textContent='Setiap kunjungan = 1 stamp. Stamp ke-9 GRATIS.';
+  if(!c){showMsg('Kartu tidak ditemukan. Cek lagi link dari Sangkara.shoot.');return}
+  $('view').innerHTML='<div id="cd"></div><p class="status"></p>';
+  mountCard($('cd'),c);$('view').querySelector('.status').textContent=statusText(c);
+}
+/* ---------- owner ---------- */
+var O={cards:[],active:null,adding:false,delArm:false,store:null};
+function cur(){return O.cards.find(function(c){return c.code===O.active})}
+function rnd(){var a='abcdefghjkmnpqrstuvwxyz23456789',s='';for(var i=0;i<8;i++)s+=a[Math.floor(Math.random()*a.length)];return s}
+function startOwner(store){
+  O.store=store;$('sub').textContent='Panel owner Sangkara.shoot: ketuk untuk memberi stamp.';
+  $('addok').onclick=addCard;$('nm').onkeydown=function(e){if(e.key==='Enter')addCard()};
+  store.subscribeList(function(list){
+    list.sort(function(a,b){return (a.created||0)-(b.created||0)});O.cards=list;
+    if(!cur())O.active=list.length?list[0].code:null;renderOwner();
+  });
+}
+function addCard(){
+  var n=$('nm').value.trim();if(!n)return;var code=rnd();
+  O.store.create(code,{name:n.slice(0,30),stamps:0,claimed:0,created:Date.now()}).then(function(){O.active=code;O.adding=false;O.delArm=false;$('nm').value='';renderOwner()},fail);
+}
+function upd(f){var c=cur();if(c)O.store.update(c.code,f).catch(fail)}
+function renderOwner(){
+  $('err').textContent='';
+  var ch=$('chips');ch.hidden=false;ch.innerHTML='';
+  O.cards.forEach(function(c){var b=document.createElement('button');b.className='chip';b.textContent=c.name;b.setAttribute('aria-pressed',c.code===O.active);
+    b.onclick=function(){O.active=c.code;O.delArm=false;renderOwner()};ch.appendChild(b)});
+  var a=document.createElement('button');a.className='chip add';a.textContent='+ Pelanggan baru';
+  a.onclick=function(){O.adding=true;renderOwner();$('nm').focus()};ch.appendChild(a);
+  $('addbox').hidden=!O.adding;
+  var v=$('view'),c=cur();
+  if(!c){v.innerHTML='<div class="empty">Belum ada kartu. Ketuk “+ Pelanggan baru” untuk membuat kartu pertama.</div>';return}
+  var full=c.stamps>=9;
+  v.innerHTML='<div id="cd"></div><p class="status"></p><div class="btns">'+
+   (full?'<button class="main reward" id="bc">Klaim FREE dan mulai kartu baru</button>':'<button class="main" id="bs">Beri stamp</button>')+
+   '<div class="row"><button class="ghost" id="bu"'+(c.stamps<1?' disabled':'')+'>Batalkan stamp terakhir</button><button class="ghost" id="bd">'+(O.delArm?'Ketuk lagi untuk hapus':'Hapus kartu')+'</button></div></div>'+
+   '<div class="link"><label for="lk">Link kartu pelanggan (kirim ke dia)</label><input id="lk" readonly></div>'+
+   (O.store.signOut?'<p style="text-align:center"><button class="ghost" id="so">Keluar</button></p>':'');
+  mountCard($('cd'),c);v.querySelector('.status').textContent=statusText(c);
+  $('lk').value=O.store.linkFor(c.code);$('lk').onfocus=function(){this.select()};
+  var bs=$('bs'),bc=$('bc');
+  if(bs)bs.onclick=function(){if(c.stamps<9)upd({stamps:c.stamps+1})};
+  if(bc)bc.onclick=function(){upd({stamps:0,claimed:(c.claimed||0)+1})};
+  $('bu').onclick=function(){if(c.stamps>0)upd({stamps:c.stamps-1})};
+  $('bd').onclick=function(){if(!O.delArm){O.delArm=true;renderOwner();return}O.delArm=false;O.store.remove(c.code).catch(fail)};
+  if($('so'))$('so').onclick=O.store.signOut;
+}
+
+/* Config Firebase project sangkara-loyalty-card */
+var FIREBASE_CONFIG={apiKey:"AIzaSyB3itDCjeY-RW0Uiqi3il_BkCZhBNq3mU4",authDomain:"sangkara-loyalty-card.firebaseapp.com",projectId:"sangkara-loyalty-card",appId:"1:577296461288:web:6a787522bc147e1f92c85d"};
+firebase.initializeApp(FIREBASE_CONFIG);
+var auth=firebase.auth(),col=firebase.firestore().collection('cards');
+var code=new URLSearchParams(location.search).get('c');
+function showLogin(msg){
+  $('chips').hidden=true;$('addbox').hidden=true;$('sub').textContent='Masuk sebagai owner Sangkara.shoot.';
+  $('view').innerHTML='<div class="login"><input id="em" type="email" placeholder="Email owner" autocomplete="username"><input id="pw" type="password" placeholder="Password" autocomplete="current-password"><button class="main" id="go">Masuk</button></div>';
+  if(msg)$('err').textContent=msg;
+  var go=function(){auth.signInWithEmailAndPassword($('em').value.trim(),$('pw').value).catch(function(){$('err').textContent='Email atau password salah.'})};
+  $('go').onclick=go;$('pw').onkeydown=function(e){if(e.key==='Enter')go()};
+}
+if(code){
+  col.doc(code).onSnapshot(function(s){var d=s.exists?s.data():null;if(d)d.code=s.id;showCustomer(d)},function(){showMsg('Kartu tidak bisa dibuka.')});
+}else{
+  var started=false;
+  auth.onAuthStateChanged(function(u){
+    if(!u){showLogin();return}
+    if(started)return;started=true;
+    startOwner({
+      subscribeList:function(cb){col.onSnapshot(function(s){cb(s.docs.map(function(d){var x=d.data();x.code=d.id;return x}))},function(e){fail(e)})},
+      create:function(c,d){return col.doc(c).set(d)},
+      update:function(c,f){return col.doc(c).update(f)},
+      remove:function(c){return col.doc(c).delete()},
+      linkFor:function(c){return location.origin+location.pathname+'?c='+c},
+      signOut:function(){auth.signOut().then(function(){location.reload()})}
+    });
+  });
+}
+
+</script>
+</body>
+</html>
